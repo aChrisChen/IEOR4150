@@ -2,7 +2,7 @@
 # Part1: Initialization
 # ============================
 
-packages.Needed <- c("shiny", "quantmod", "ggplot2", "dplyr", "shinythemes")
+packages.Needed <- c("shiny", "quantmod", "ggplot2", "dplyr", "shinythemes", "httr")
 packages.Uninstalled <- packages.Needed[!(packages.Needed %in% installed.packages()[, "Package"])]
 if (length(packages.Uninstalled) > 0) {
   install.packages(packages.Uninstalled)
@@ -18,50 +18,115 @@ stocks_env = new.env()
 # ============================
 # Part2: User Interface
 # ============================
-ui <- fluidPage(
-  titlePanel(title = "Statistical Analysis of Stocks", windowTitle = "Stock Stat Analysis"),
-  sidebarLayout(
+
+firstPart <- sidebarLayout(
     sidebarPanel(
-      h4("One Symbol Analysis"),
+      # h4("One Symbol Analysis"),
       wellPanel(
-        dateInput('startDate',
+        dateInput('startDate1',
                   label = 'Start date: yyyy-mm-dd',
                   value = start_date
         ),
-        dateInput('endDate',
+        dateInput('endDate1',
                   label = 'End date: yyyy-mm-dd',
                   value = end_date
         ),
         
         selectInput(
-          inputId = "select1",
+          inputId = "select11",
           label = "Stock Symbol",
           choices = stocks,
           selected = "AAPL"
         ),
         conditionalPanel(
-          condition = "input.select1 == 'other'",
+          condition = "input.select11 == 'other'",
           textInput(
-            inputId = "otherStock",
+            inputId = "otherStock11",
             label = "Please enter the Symbol"
-            )
+          )
         )
       )
     ),
-      
     mainPanel(
       tabsetPanel(
         tabPanel(
           title = "Hist of Log Return",
-          plotOutput("histLog")
+          plotOutput("histLog1")
         ),
         tabPanel(
           title = "QQ Plot",
-          plotOutput("qqPlot")
+          plotOutput("qqPlot1")
         )
       )
     )
   )
+
+secondPart <- sidebarLayout(
+  sidebarPanel(
+    # h4("Two Symbols Analysis"),
+    wellPanel(
+      dateInput('startDate2',
+                label = 'Start date: yyyy-mm-dd',
+                value = start_date
+      ),
+      dateInput('endDate2',
+                label = 'End date: yyyy-mm-dd',
+                value = end_date
+      ),
+      
+      selectInput(
+        inputId = "select21",
+        label = "Stock Symbol 1",
+        choices = stocks,
+        selected = "AAPL"
+      ),
+      conditionalPanel(
+        condition = "input.select21 == 'other'",
+        textInput(
+          inputId = "otherStock21",
+          label = "Please enter the Symbol"
+        )
+      ),
+      selectInput(
+        inputId = "select22",
+        label = "Stock Symbol 2",
+        choices = stocks,
+        selected = "AAPL"
+      ),
+      conditionalPanel(
+        condition = "input.select22 == 'other'",
+        textInput(
+          inputId = "otherStock22",
+          label = "Please enter the Symbol"
+        )
+      )
+      
+    )
+  ),
+  mainPanel(
+    tabsetPanel(
+      tabPanel(
+        title = "Hist of Log Return",
+        plotOutput("histLog2")
+      ),
+      tabPanel(
+        title = "QQ Plot",
+        plotOutput("qqPlot2")
+      )
+    )
+  )
+)
+
+ui <- fluidPage(
+  theme = shinytheme('darkly'),
+  
+  htmlTemplate(filename = "Template.html",
+               singleAnalysis = firstPart,
+               doubleAnalysis = secondPart
+  )
+  
+  
+  
 )
 # ============================
 # Part3: Support Functions for Server
@@ -96,9 +161,9 @@ HistForLogReturns <- function(df, stock) {
 # ============================
 server <- function(input, output) {
   stock <- reactive({
-    stock.name <- input$select1
+    stock.name <- input$select11
     if (stock.name == "other") {
-      stock.name <- input$otherStock
+      stock.name <- input$otherStock11
     }
     stock.name
   })
@@ -107,7 +172,7 @@ server <- function(input, output) {
     # if (!stock() %in% names(stocks_env) && stock() != ".getSymbols"){
     #   getSymbols(Symbols = stock(), from = input$startDate, to = input$endDate, env = stocks_env)
     # }
-    getSymbols(Symbols = stock(), from = input$startDate, to = input$endDate, env = stocks_env)
+    getSymbols(Symbols = stock(), from = input$startDate1, to = input$endDate1, env = stocks_env)
     
     df = data.frame(stocks_env[[stock()]])
     colnames(df) <- c("open", "high", "low", "close", "volume", "adjusted")
@@ -124,7 +189,7 @@ server <- function(input, output) {
     dfWeek
   })
   
-  output$histLog <- renderPlot({
+  output$histLog1 <- renderPlot({
     HistForLogReturns(df(), stock())
   })
   
