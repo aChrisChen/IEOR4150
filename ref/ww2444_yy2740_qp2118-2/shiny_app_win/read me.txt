@@ -1,1 +1,0 @@
-This app only runs on Windows OS. There will be path error in MAC OS and can't be fixed by my knowledge.
