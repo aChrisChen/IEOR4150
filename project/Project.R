@@ -24,6 +24,15 @@ ui <- fluidPage(
     sidebarPanel(
       h4("One Symbol Analysis"),
       wellPanel(
+        dateInput('startDate',
+                  label = 'Start date: yyyy-mm-dd',
+                  value = start_date
+        ),
+        dateInput('endDate',
+                  label = 'End date: yyyy-mm-dd',
+                  value = end_date
+        ),
+        
         selectInput(
           inputId = "select1",
           label = "Stock Symbol",
@@ -54,9 +63,36 @@ ui <- fluidPage(
     )
   )
 )
+# ============================
+# Part3: Support Functions for Server
+# ============================
+
+# 可以用的数据结构有 df
+# df: (data.frame with col names ["open", "high", "low", "close", "volume", "adjusted", "log_returns"])
+# 可以用的数据结构有 dfWeek
+# dfWeek: (data.frame with col names ["year.week", "log_returns"])
+# 可以用的数据结构有 stock
+# stock: the name the stock
+
+# For Q1:.............
+HistForLogReturns <- function(df, stock) {
+  # Get the histogram of the log_returns of specific stock.
+  #
+  # Args:
+  #   df: (data.frame with col names ["open", "high", "low", "close", "volume", "adjusted", "log_returns"])
+  #   stock: the name the stock
+  # 
+  # Returns:
+  #   null
+  hist(df$log_returns, main = stock)
+}
+  
+
+
+
 
 # ============================
-# Part3: Server
+# Part4: Server
 # ============================
 server <- function(input, output) {
   stock <- reactive({
@@ -68,9 +104,10 @@ server <- function(input, output) {
   })
   
   df <- reactive({
-    if (!stock() %in% names(stocks_env) && stock() != ".getSymbols"){
-      getSymbols(Symbols = stock(), from = start_date, to = end_date, env = stocks_env)
-    }
+    # if (!stock() %in% names(stocks_env) && stock() != ".getSymbols"){
+    #   getSymbols(Symbols = stock(), from = input$startDate, to = input$endDate, env = stocks_env)
+    # }
+    getSymbols(Symbols = stock(), from = input$startDate, to = input$endDate, env = stocks_env)
     
     df = data.frame(stocks_env[[stock()]])
     colnames(df) <- c("open", "high", "low", "close", "volume", "adjusted")
@@ -78,9 +115,19 @@ server <- function(input, output) {
     df
   })
   
-  output$histLog <- renderPlot({
-    hist(df()$log_returns, main = stock())
+  dfWeek <- reactive({
+    df <- df()
+    df$year.week <- strftime(row.names(df), format = "%Y.%V")
+    dfWeek <- aggregate(df$log_returns, by = list(df$year.week), FUN = sum)
+    rownames(dfWeek) <- dfWeek[, 1]
+    colnames(dfWeek) <- c("year.week", "log_returns")
+    dfWeek
   })
+  
+  output$histLog <- renderPlot({
+    HistForLogReturns(df(), stock())
+  })
+  
 }
 
 
