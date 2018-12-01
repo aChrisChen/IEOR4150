@@ -700,39 +700,3 @@ server <- function(input, output) {
 
 
 shinyApp(ui = ui, server = server)
-
-
-
-
-# 
-# stock.names <- stocks[1:10]
-# getSymbols(Symbols = stock.names, from = startDate, to = endDate, env = stocks_env3)
-# i <- 1
-# for (stock in stock.names){
-#   df = data.frame(stocks_env3[[stock]])
-#   colnames(df) <- c("open", "high", "low", "close", "volume", "adjusted")
-#   df$log_returns = log(df$close / df$open)
-# 
-#   if (i == 1){
-#     result <- data.frame(df$log_returns, row.names = rownames(df))
-#     colnames(result) <- stock.names[1]
-#   } else {
-#     result[, stock] <- df$log_returns
-#   }
-#   i <- i + 1;
-# }
-# 
-# covarianceMatrix <- cov(result)
-# 
-# 
-# covarianceMatrix
-# 
-# 
-# covarianceMatrix <- signif(logReturnsAll, digits = 3)
-# covarianceMatrix
-# 
-# cov(result)
-# 
-# 
-# 
-# cov(result)
