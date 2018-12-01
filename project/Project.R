@@ -81,6 +81,12 @@ firstPart <- sidebarLayout(
           br(),
           h3("Tbats Forecast Details Summary"),
           verbatimTextOutput('tbatsForecastSummary')
+        ),
+        tabPanel(
+          title = "January Effects",
+          br(),
+          h3("January Effects Summary"),
+          verbatimTextOutput('januaryEffectsSummary')
         )
       )
     )
@@ -524,6 +530,45 @@ CorrelationMatrix <- function(logReturnsAll){
   return (signif(cor(logReturnsAll), digits = 3))
 }
 
+#For 8: We create
+JanuaryEffects <- function(df, stock){
+  # Find out certain year's mean value of Log-return 
+  # and the mean of the log return on January
+  # make Hypothesis test: 
+  # The mean of January is equal to the mean of one year?
+  #
+  # Args:
+  #   stock: the name of the stock
+  #   df$January: value of log return in each January
+  #   df$Year: value of log return in each year
+  #   year: which year for you to take hypothesis test
+  # 
+  #  Returns:
+  #  Hypothesis test Results including 
+  #  P-value and T-value to test if reject the H0
+  years = unique(substring(rownames(df), 1, 4))
+  dfYearList <- c()
+  dfJanuaryList <- c()
+  
+  
+  for (year in years){
+    dfYear = df[(df$date > as.Date(paste0(year,"-01-01"), "%Y-%m-%d")) &
+                  (df$date < as.Date(paste0(year,"-12-31"), "%Y-%m-%d")), ]
+    dfYearList <- append(dfYearList, mean(dfYear$log_returns))
+    
+    dfJanuary = df[(df$date > as.Date(paste0(year,"-01-01"), "%Y-%m-%d")) &
+                      (df$date < as.Date(paste0(year,"-02-01"), "%Y-%m-%d")), ]
+    dfJanuaryList <- append(dfJanuaryList, mean(dfJanuary$log_returns))
+    
+  }
+  
+  # Hypothesis:
+  # u = mean of log-return value of January
+  # u0 = mean of log-return value of one year
+  # Make two sample t-test to test the hypothesis
+  t.test(dfJanuaryList, dfYearList, var.equal = FALSE, conf.level=0.95)
+  
+} 
 
 
 # ============== Part4: Server ======================
@@ -610,6 +655,12 @@ server <- function(input, output) {
   output$tbatsForecastSummary <- renderPrint({
     TbatsSummary(df(), stock())
   })
+  
+  # =============== ** 1-6===============
+  output$januaryEffectsSummary <- renderPrint({
+    JanuaryEffects(df(), stock())
+  })
+  
   
   # =============== For Part 2 ================
   stock21 <- reactive({
@@ -700,3 +751,37 @@ server <- function(input, output) {
 
 
 shinyApp(ui = ui, server = server)
+
+# 
+# getSymbols(Symbols = "DJI", from = start_date, to = end_date)
+# df <- DJI
+# colnames(df) <- c("open", "high", "low", "close", "volume", "adjusted")
+# df$log_returns = log(df$close / df$open)
+# df$log_returns = close
+# 
+# df$year.week <- strftime(row.names(df), format = "%Y.%V")
+# dfWeek <- aggregate(df$log_returns, by = list(df$year.week), FUN = sum)
+# rownames(dfWeek) <- dfWeek[, 1]
+# colnames(dfWeek) <- c("year.week", "log_returns")
+# dfWeek
+# 
+# df$year.month <- strftime(row.names(df), format = "%Y.%m")
+# 
+# df$year.month <- as.yearmon(rownames(df))
+# dfMonth <- aggregate(df$log_returns, by = list(df$year.month), FUN = mean)
+# colnames(dfMonth) <- c("year.month", "log_returns")
+# # plot(dfMonth$year.month, dfMonth$log_returns)
+# #
+# dfMonth$num <- c(1:36)
+# ggplot(dfMonth[1:12,], aes(x = num, y = log_returns), main = "2015") +
+#   # 条形图函数：stat表明取用样本点对应纵轴值
+#   geom_bar(stat = "identity")
+# 
+# ggplot(dfMonth[13:24,], aes(x = num, y = log_returns)) +
+#   # 条形图函数：stat表明取用样本点对应纵轴值
+#   geom_bar(stat = "identity")
+# 
+# ggplot(dfMonth[25:36,], aes(x = num, y = log_returns)) +
+#   # 条形图函数：stat表明取用样本点对应纵轴值
+#   geom_bar(stat = "identity")
+# 
