@@ -468,9 +468,6 @@ TwoStockRegressionSummary <- function(df21, df22, stock21, stock22){
   # Returns:
   #   the summary of linear regression line for daily log-return 
   
-  strDate <- rownames(df)
-  df$date <- as.Date(strDate, "%Y-%m-%d")
-  
   fitInformation <- lm(df22$log_returns ~ df21$log_returns)
   print(paste0("Stock => ",stock21," and ", stock22, " linear regression details"))
   return(summary(fitInformation))
