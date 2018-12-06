@@ -749,36 +749,7 @@ server <- function(input, output) {
 
 shinyApp(ui = ui, server = server)
 
-# 
-# getSymbols(Symbols = "DJI", from = start_date, to = end_date)
-# df <- DJI
-# colnames(df) <- c("open", "high", "low", "close", "volume", "adjusted")
-# df$log_returns = log(df$close / df$open)
-# df$log_returns = close
-# 
-# df$year.week <- strftime(row.names(df), format = "%Y.%V")
-# dfWeek <- aggregate(df$log_returns, by = list(df$year.week), FUN = sum)
-# rownames(dfWeek) <- dfWeek[, 1]
-# colnames(dfWeek) <- c("year.week", "log_returns")
-# dfWeek
-# 
-# df$year.month <- strftime(row.names(df), format = "%Y.%m")
-# 
-# df$year.month <- as.yearmon(rownames(df))
-# dfMonth <- aggregate(df$log_returns, by = list(df$year.month), FUN = mean)
-# colnames(dfMonth) <- c("year.month", "log_returns")
-# # plot(dfMonth$year.month, dfMonth$log_returns)
-# #
-# dfMonth$num <- c(1:36)
-# ggplot(dfMonth[1:12,], aes(x = num, y = log_returns), main = "2015") +
-#   # 条形图函数：stat表明取用样本点对应纵轴值
-#   geom_bar(stat = "identity")
-# 
-# ggplot(dfMonth[13:24,], aes(x = num, y = log_returns)) +
-#   # 条形图函数：stat表明取用样本点对应纵轴值
-#   geom_bar(stat = "identity")
-# 
-# ggplot(dfMonth[25:36,], aes(x = num, y = log_returns)) +
-#   # 条形图函数：stat表明取用样本点对应纵轴值
-#   geom_bar(stat = "identity")
-# 
+
+
+
+
