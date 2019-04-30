@@ -1,5 +1,7 @@
 # IEOR4150_stockAnalysisShiny
 
+**Copying my code for your assignment is an academic offence. You have been warned.**
+
 This repo contains code for programming homework of IEOR4150.
 
 Directory "log_returns" contains results from hw9 and hw11.
